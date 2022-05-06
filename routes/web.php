@@ -16,6 +16,7 @@ use App\Http\Controllers\PunguanController;
 use App\Http\Controllers\PendidikanController;
 use App\Http\Controllers\LanjutController;
 use App\Http\Controllers\TingController;
+use App\Http\Controllers\AutentikasiController;
 
 
 
@@ -30,7 +31,7 @@ use App\Http\Controllers\TingController;
 |
 */
 
-Route::get('/', function () {
+Route::get('/dash_bph', function () {
     return view('dashboard');
 });
 
@@ -78,9 +79,10 @@ Route::resource('punguan', PunguanController::class);
 Route::resource('lanjut', LanjutController::class);
 
 
+
 //TENTANG JADWAL IBADAH
 Route::get('/jadwalibadah', [JadwalIbadahController::class, 'lihatData']);
-Route::post('/tentang/tambahJadwal',[JadwalIbadahController::class, 'tambah']);
+Route::post('/tentang/tambahJadwal', [JadwalIbadahController::class, 'tambah']);
 Route::get('/tentang/tambahJadwal', [JadwalIbadahController::class, 'create']);
 Route::get('/tentang/editJadwal/{id}', [JadwalIbadahController::class, 'edit']);
 Route::get('/tentang/editJadwal', [JadwalIbadahController::class, 'update']);
@@ -91,6 +93,28 @@ Route::get('/tentang/hapus/{id}', [JadwalIbadahController::class, 'hapus']);
 Route::resource('ting', TingController::class);
 
 
+Route::get('/aula/user', [BookingAulaController::class, 'index2']);
 
 
 
+Route::get('/login', [AutentikasiController::class, 'login']);
+Route::post('/login', [AutentikasiController::class, 'authenticate']);
+
+Route::get('/daftar', [AutentikasiController::class, 'daftar']);
+Route::post('/daftar', [AutentikasiController::class, 'store']);
+Route::post('/logout', [AutentikasiController::class, 'logout']);
+
+
+//Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::group(['middleware' => ['auth']], function () {
+    Route::group(['middleware' => ['level_check:1']], function () {
+        Route::get('/dash_pendeta', [AutentikasiController::class, 'dash_p']);
+    });
+    Route::group(['middleware' => ['level_check:2']], function () {
+        Route::get('/dash_bph', [AutentikasiController::class, 'dash_b']);
+    });
+    Route::group(['middleware' => ['level_check:3']], function () {
+        Route::get('/dash_user', [AutentikasiController::class, 'dash_u']);
+    });
+});
